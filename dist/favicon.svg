@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0B1F45"/>
+  <!-- Outer Globe Ring -->
+  <circle cx="30" cy="34" r="19" stroke="#FFFFFF" stroke-width="2.6" stroke-opacity="0.92"/>
+  <!-- Globe Meridians & Parallels -->
+  <ellipse cx="30" cy="34" rx="9.5" ry="19" stroke="#FFFFFF" stroke-width="2" stroke-opacity="0.75"/>
+  <line x1="11" y1="34" x2="49" y2="34" stroke="#FFFFFF" stroke-width="2" stroke-opacity="0.75"/>
+  <path d="M14 25.5C19 28 41 28 46 25.5" stroke="#FFFFFF" stroke-width="1.8" stroke-opacity="0.65" stroke-linecap="round"/>
+  <path d="M14 42.5C19 40 41 40 46 42.5" stroke="#FFFFFF" stroke-width="1.8" stroke-opacity="0.65" stroke-linecap="round"/>
+  <!-- Dynamic Orange Flight Path Arc -->
+  <path d="M9 45C17 22 36 15 51 17" stroke="#F28C28" stroke-width="3.6" stroke-linecap="round"/>
+  <!-- Sleek Airplane Icon in Accent Orange (#F28C28) -->
+  <path d="M56 14L43.5 15.5L47 19.2L37.5 25.5L40 28L49.8 22.2L51.5 27.5L56 14Z" fill="#F28C28"/>
+  <circle cx="51" cy="17" r="1.5" fill="#FFFFFF"/>
+</svg>
