@@ -260,7 +260,18 @@ export default function AdminDashboard() {
       return;
     }
     loadAdminAll();
-  }, [token, user, navigate, loadAdminAll]);
+
+    const intervalId = setInterval(() => {
+      loadAdminAll();
+    }, 15000);
+    const onFocus = () => loadAdminAll();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [token, user, navigate, loadAdminAll, activeModule]);
 
   // Handlers
   const handleUpdateRequest = async (e) => {
@@ -646,6 +657,17 @@ export default function AdminDashboard() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
+            onClick={() => {
+              loadAdminAll();
+              showFeedback('Admin console synced with latest customers and bookings.');
+            }}
+            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <Users className="w-4 h-4 text-amber-300" />
+            <span>Refresh Live Data</span>
+          </button>
+          <button
+            type="button"
             onClick={handleCreateBackup}
             className="px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-amber-300 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
           >
@@ -706,23 +728,79 @@ export default function AdminDashboard() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'Registered Customers', val: stats.totalCustomers || 0, color: 'text-slate-900' },
-                  { label: 'Total Booking Requests', val: stats.totalRequests || 0, color: 'text-emerald-900' },
-                  { label: 'Pending Inquiries', val: stats.pendingInquiries || 0, color: 'text-amber-600' },
-                  { label: 'Confirmed Bookings', val: stats.confirmedBookings || 0, color: 'text-emerald-700' },
-                  { label: 'Active Tour Packages', val: stats.totalPackages || 0, color: 'text-slate-900' },
-                  { label: 'Flight Inquiries', val: stats.totalFlightInquiries || 0, color: 'text-blue-800' },
-                  { label: 'Hotel Inquiries', val: stats.totalHotelInquiries || 0, color: 'text-indigo-800' },
-                  { label: 'Visa & Passport Requests', val: stats.totalVisaRequests || 0, color: 'text-purple-800' }
+                  { label: 'Registered Customers', val: stats.totalCustomers || 0, color: 'text-slate-900', target: 'customers' },
+                  { label: 'Total Booking Requests', val: stats.totalRequests || 0, color: 'text-emerald-900', target: 'requests' },
+                  { label: 'Pending Inquiries', val: stats.pendingInquiries || 0, color: 'text-amber-600', target: 'requests' },
+                  { label: 'Confirmed Bookings', val: stats.confirmedBookings || 0, color: 'text-emerald-700', target: 'requests' },
+                  { label: 'Active Tour Packages', val: stats.totalPackages || 0, color: 'text-slate-900', target: 'tours' },
+                  { label: 'Flight Inquiries', val: stats.totalFlightInquiries || 0, color: 'text-blue-800', target: 'flights' },
+                  { label: 'Hotel Inquiries', val: stats.totalHotelInquiries || 0, color: 'text-indigo-800', target: 'hotels' },
+                  { label: 'Visa & Passport Requests', val: stats.totalVisaRequests || 0, color: 'text-purple-800', target: 'visa' }
                 ].map((card) => (
-                  <div key={card.label} className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
-                    <span className="text-xs text-slate-500 font-medium">{card.label}</span>
+                  <button
+                    key={card.label}
+                    type="button"
+                    onClick={() => setActiveModule(card.target)}
+                    className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm hover:border-emerald-800 hover:shadow-md transition text-left cursor-pointer"
+                  >
+                    <span className="text-xs text-slate-500 font-medium block">{card.label}</span>
                     <p className={`text-2xl font-bold mt-1 ${card.color}`}>{card.val}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
 
               {renderAdminRequestsTable(requests.slice(0, 8), 'Recent Customer Booking & Assistance Requests')}
+
+              {/* Recently Registered Customers Preview on Overview */}
+              <div className="bg-white rounded-2xl p-6 border border-stone-200 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-serif-display font-bold text-slate-900">
+                      Recently Registered Customers ({customers.filter((c) => c.role === 'customer').length})
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Newest customer accounts created on the platform
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveModule('customers')}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-900 text-amber-300 font-bold text-xs cursor-pointer"
+                  >
+                    View All Customers
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-stone-100 text-slate-600 uppercase">
+                      <tr>
+                        <th className="p-3">Customer Name</th>
+                        <th className="p-3">Email & Phone</th>
+                        <th className="p-3">Nationality</th>
+                        <th className="p-3">Bookings</th>
+                        <th className="p-3">Registered On</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100">
+                      {customers
+                        .filter((c) => c.role === 'customer')
+                        .slice(0, 6)
+                        .map((c) => (
+                          <tr key={c.id}>
+                            <td className="p-3 font-bold text-slate-900">{c.full_name}</td>
+                            <td className="p-3">
+                              <div>{c.email}</div>
+                              <div className="text-slate-400">{c.phone}</div>
+                            </td>
+                            <td className="p-3">{c.nationality || '—'}</td>
+                            <td className="p-3 font-bold text-emerald-900">{c.request_count || 0}</td>
+                            <td className="p-3 text-slate-500">{c.created_at}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
