@@ -263,7 +263,7 @@ export default function AdminDashboard() {
 
     const intervalId = setInterval(() => {
       loadAdminAll();
-    }, 15000);
+    }, 60000);
     const onFocus = () => loadAdminAll();
     window.addEventListener('focus', onFocus);
 
